@@ -7,6 +7,7 @@ import basic_analysis_functions.MA_basic_analysis_functions as ma_analysis
 import basic_analysis_functions.MA_plot_functions_basic_analysis as ma_plot
 import import_functions.MA_filter_functions as ma_filter
 import basic_analysis_functions.MA_sac_ID_ivo as ma_sacc
+import basic_analysis_functions.MA_run_sac_ID_ivo as ma_runsacc
 ###############################################################################
 
 dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
@@ -104,28 +105,17 @@ for i in range(len(all_velos)):
         trial_avs.append([tav_1, tav_2, tav_3])
     all_trial_avs.append(trial_avs)
 
-#plotting test trials
-# for i in range(len(datapaths)):
-#     fly = 'fly_'+str(i)+'_'+str(datapaths[i][-24:-5])
-#     print(fly)
-#     for j in range(len(all_posgain_bias_trials[i])):
-#         plt.figure(figsize=(14,7))
+###############################################################################
+
+# for i in [0]:#range(len(datapaths)):
 #
-#         trial = all_neggain_bias_trials[i][j]
-#         s = all_start_frames[i][trial - 2]
-#         e = all_end_frames[i][trial + 1]
-#
-#         v = all_velos[i][s:e]
-#         t = np.linspace(0,  len(v), len(v))
-#         g = all_gains[i][j]
-#         tt = type_each_trial[j]
-#
-#         fly_setpoint = all_trial_avs[i][trial- 2][2]
-#
-#         plt.plot(t,v, c='k', linewidth=1)
-#         plt.axhline(y=0.0, color='gray', linestyle='-', linewidth= 0.9)
-#         plt.axhline(y=fly_setpoint, color='blue', linestyle='--', linewidth= 0.9)
-#         plt.show()
+#     v = all_velos[i]
+#     test_trials = all_posgain_bias_trials[i]
+#     start_frames = all_start_frames[i]
+#     end_frames = all_end_frames[i]
+#     pattern_velos = all_pattern_velos[i]
+#     datapath = datapaths[i]
+#     ma_plot.plot_ma081621_test_trials(v, reg_t, test_trials, start_frames, end_frames, pattern_velos, datapath)
 
 ###############################################################################
 #saccade analysis
@@ -133,85 +123,109 @@ for i in range(len(all_velos)):
 dt = reg_t[1] - reg_t[0]
 fps = 1/dt
 
-#overfiltering angular velocity
-all_overfilt_velos = []
-for i in range(len(all_velos)):
-    overfilt_velo = ma_filter.overfiltVec(all_velos[i], dt)
-    all_overfilt_velos.append(overfilt_velo)
+#overfilter angular velocity data
+highcut = 0.2
+all_overfilt_velos_1 = ma_runsacc.get_all_overfiltered_velos(all_velos, dt, highcut)
 
-#run saccade ider
-all_nosaccs_velos = []
-all_saccs_lr_idx = []
-all_saccs_l_idx = []
-all_saccs_r_idx = []
-all_saccs_thresh = []
-for i in range(len(all_velos)):
-    #sacc detection threshold
-    sdt = np.nanstd(all_velos[i] - all_overfilt_velos[i])*3
-    headingVeloThresholdDeg = sdt
-    #detrend angular velocity trace
-    detrended_angvelo = all_velos[i] - all_overfilt_velos[i]
-    #run saccade ider function on detrended angular velocity
-    velo_detrended_nosaccs, saccs_lr, saccs_l, saccs_r = ma_sacc.findSacs(detrended_angvelo, all_velos[i], headingVeloThresholdDeg)
-    #find and remove saccade from actual angular velocity signal
-    velo_nosaccs = np.copy(all_velos[i])
-    velo_nosaccs[np.isnan(velo_detrended_nosaccs)] = np.nan
+#remove saccade
+threshold = 3.5
+all_nosaccs_velos_1, all_saccs_idx_1,  all_saccs_l_idx_1, all_saccs_r_idx_1, all_saccs_thresh_1 = ma_runsacc.get_all_nosacc_velos(all_velos,
+                                                                                                    all_overfilt_velos_1, threshold)
 
-    all_nosaccs_velos.append(velo_nosaccs)
-    all_saccs_lr_idx.append(saccs_lr)
-    all_saccs_l_idx.append(saccs_l)
-    all_saccs_r_idx.append(saccs_r)
-    all_saccs_thresh.append(headingVeloThresholdDeg)
+###############################################################################
+#
+# for i in [0]:#range(len(datapaths)):
+#
+#     v = all_nosaccs_velos_1[i]
+#     ov = all_overfilt_velos_1[i]
+#     test_trials = all_posgain_bias_trials[i]
+#     start_frames = all_start_frames[i]
+#     end_frames = all_end_frames[i]
+#     pattern_velos = all_pattern_velos[i]
+#     datapath = datapaths[i]
+#
+#     ma_plot.plot_ma081621_test_trials(v, reg_t, test_trials, start_frames, end_frames, pattern_velos, datapath, ov)
+
+###############################################################################
+from scipy.interpolate import interp1d
+
+all_nosaccs_velos_1_interp = []
+for i in range(len(all_nosaccs_velos_1)):
+    v1 = all_nosaccs_velos_1[i]
+    v1_nan_idx = ~np.isnan(v1)
+
+    v = np.array(v1[v1_nan_idx])
+    t = np.array(reg_t[v1_nan_idx])
+
+    f_a = interp1d(t, v, bounds_error=False)
+    reg_a = f_a(reg_t)
+
+    all_nosaccs_velos_1_interp.append(reg_a)
+
+highcut = 0.2
+all_overfilt_velos = ma_runsacc.get_all_overfiltered_velos(all_nosaccs_velos_1_interp, dt, highcut)
+
+#remove saccade
+threshold = 2.
+all_nosaccs_velos, all_saccs_idx,  all_saccs_l_idx, all_saccs_r_idx, all_saccs_thresh = ma_runsacc.get_all_nosacc_velos(all_velos,
+                                                                                                    all_overfilt_velos, threshold)
+
+###############################################################################
 
 for i in [0]:#range(len(datapaths)):
-    fly = 'fly_'+str(i)+'_'+str(datapaths[i][-24:-5])
-    print(fly)
-    for j in range(len(all_posgain_bias_trials[i])):
-        plt.figure(figsize=(14,7))
 
-        trial = all_static_bias_trials[i][j]
-        s = all_start_frames[i][trial - 2]
-        e = all_end_frames[i][trial + 1]
+    v = all_nosaccs_velos[i]
+    ov = all_overfilt_velos[i]
+    test_trials = all_posgain_bias_trials[i]
+    start_frames = all_start_frames[i]
+    end_frames = all_end_frames[i]
+    pattern_velos = all_pattern_velos[i]
+    datapath = datapaths[i]
+    overfilt_velos= all_overfilt_velos[i]
+    ma_plot.plot_ma081621_test_trials(v, reg_t, test_trials, start_frames, end_frames, pattern_velos, datapath, ov)
 
-        v = all_velos[i][s:e]
-        v_ns = all_nosaccs_velos[i][s:e]
-        v_overfilt = all_overfilt_velos[i][s:e]
-        t = np.linspace(0,  len(v), len(v))*(1/fps)
-        g = all_gains[i][j]
-        tt = type_each_trial[j]
+# for i in [0]:#range(len(datapaths)):
+#
+#     v = all_velos[i]
+#     test_trials = all_posgain_bias_trials[i]
+#     start_frames = all_start_frames[i]
+#     end_frames = all_end_frames[i]
+#     pattern_velos = all_pattern_velos[i]
+#     datapath = datapaths[i]
+#     ma_plot.plot_ma081621_test_trials(v, reg_t, test_trials, start_frames, end_frames, pattern_velos, datapath)
 
-        fly_setpoint = all_trial_avs[i][trial- 2][2]
+#plotting removed saccades
 
-        #plt.plot(v - v_overfilt, c='magenta')
-        #plt.plot(t,v, c='k', linewidth=1)
-        plt.plot(t,v, c='k', linewidth=1, zorder = 3)
-        plt.plot(t,v_ns, c='b', linewidth=1, zorder = 3)
+# for i in [0]:#range(len(datapaths)):
+#     fly = 'fly_'+str(i)+'_'+str(datapaths[i][-24:-5])
+#     print(fly)
+#     for j in range(len(all_posgain_bias_trials[i])):
+#         plt.figure(figsize=(14,7))
+#
+#         trial = all_static_bias_trials[i][j]
+#         s = all_start_frames[i][trial - 2]
+#         e = all_end_frames[i][trial + 1]
+#
+#         v = all_velos[i][s:e]
+#         v_ns = all_nosaccs_velos[i][s:e]
+#         v_overfilt = all_overfilt_velos[i][s:e]
+#         t = np.linspace(0,  len(v), len(v))*(1/fps)
+#         g = all_gains[i][j]
+#         tt = type_each_trial[j]
+#
+#         fly_setpoint = all_trial_avs[i][trial- 2][2]
+#
+#         #plt.plot(v - v_overfilt, c='magenta')
+#         #plt.plot(t,v, c='k', linewidth=1)
+#         plt.plot(t,v, c='k', linewidth=1, zorder = 3)
+#         plt.plot(t,v_ns, c='b', linewidth=1, zorder = 3)
+#
+#         sdt = all_saccs_thresh[i]
+#         plt.axhline(y=0.0, color='gray', linestyle='-', linewidth= 0.9)
+#         # plt.axhline(y=sdt, color='gray', linestyle='-', linewidth= 0.5)
+#         # plt.axhline(y=-sdt, color='gray', linestyle='-', linewidth= 0.5)
+# plt.show()
 
-        sdt = all_saccs_thresh[i]
-        plt.axhline(y=0.0, color='gray', linestyle='-', linewidth= 0.9)
-        # plt.axhline(y=sdt, color='gray', linestyle='-', linewidth= 0.5)
-        # plt.axhline(y=-sdt, color='gray', linestyle='-', linewidth= 0.5)
-plt.show()
-
-#plot saccadeless traces
-
-    # plt.figure(figsize=(14,7))
-    #
-    # plt.plot(heading_noSacs, c='k', zorder =10000)
-    # all_velos_sacs=np.copy(all_velos[i])*np.nan
-    #
-    # all_velos_sacs[~np.isnan(saccs)]=all_velos[i][~np.isnan(saccs)]
-    # plt.plot(all_velos_sacs,  linestyle='None',  marker='.', color='b', markersize=4,    zorder=10000000)
-    #
-    #
-    # plt.plot(all_velos[i], c='gray')
-    #
-    # plt.axhline(y=0.0, color='gray', linestyle='-', linewidth= 0.9)
-    # plt.axhline(y=sdt, color='gray', linestyle='-', linewidth= 0.5)
-    # plt.axhline(y=-sdt, color='gray', linestyle='-', linewidth= 0.5)
-    #
-    # plt.plot(all_velos[i] - all_overfilt_velos[i], c='magenta')
-    # plt.show()
 ###############################################################################
 # #plot filt - overfilt
 # for i in [0]:#range(len(datapaths)):

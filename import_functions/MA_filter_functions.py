@@ -33,20 +33,10 @@ def filter_angles_savgol(angles_deg_uw):
 
     return filtered_angles_wr_deg
 
-
-def butter_lowpass(th_order=4, highcut=12., fs=30.):
-    nyq             = 0.5 * fs
-    high            = highcut / nyq
-    return butter(th_order, high, btype='low')
-
-def overfiltVec(inArr, kFf):
-    d, c            = butter_lowpass(th_order=4, highcut=0.5 , fs=30.)
-    return filtfilt(d, c, inArr)
-
-def overfilter_ang_vel(ang_vel):
-    #Savitzky–Golay filter
-    window = (17*3)+1
-    polyorder = 1
-    overfiltered_angvel = sig.savgol_filter(ang_vel , window, polyorder, 0)
-
-    return overfiltered_angvel
+# def overfilter_ang_vel(ang_vel):
+#     #Savitzky–Golay filter
+#     window = (17*3)+1
+#     polyorder = 1
+#     overfiltered_angvel = sig.savgol_filter(ang_vel , window, polyorder, 0)
+#
+#     return overfiltered_angvel
