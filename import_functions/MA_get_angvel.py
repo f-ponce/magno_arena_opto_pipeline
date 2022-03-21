@@ -13,7 +13,7 @@ def get_angvel(t,p,window=17,polyorder=3):
     info = {'p_2x': p_2x_unwrap, 'p_2x_filt': p_2x_filt}
     return dp_filt, info
 
-#function to get filtered ang velo from all files in the list
+#get filtered ang velo from all files in the list
 def get_all_angvel(reg_t, all_magnotether_angles_exp_uw_interp):
     dt = reg_t[1] - reg_t[0]
     all_angvels = []
@@ -22,8 +22,10 @@ def get_all_angvel(reg_t, all_magnotether_angles_exp_uw_interp):
         angles_rad = np.deg2rad(all_magnotether_angles_exp_uw_interp[i])
         angles_wr_rad = np.arctan2(np.sin(angles_rad), np.cos(angles_rad))
         angles_wr_deg = np.rad2deg(angles_wr_rad)
-
-        ang_vel, info = get_angvel(reg_t, angles_wr_deg,window=17,polyorder=3)
+        #filter angular velocity of each file/fly
+        w = 17
+        po = 3
+        ang_vel, info = get_angvel(reg_t, angles_wr_deg,window=w,polyorder=po)
         all_angvels.append(ang_vel/dt)
 
     return all_angvels

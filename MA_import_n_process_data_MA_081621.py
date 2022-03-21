@@ -12,25 +12,28 @@ from fnmatch import fnmatch
 import pickle
 
 #data directory info
+exp_s = 10
 
-exp = 'MA_081621_180s'
+exp = 'MA_081621_'+str(exp_s)+'s'
+print(exp)
 
-dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_081621/data_180_2/data_0915'
+dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_081621/data_'+str(exp_s)+'s_2'
+
 pattern_ma_data = "*.hdf5"
 
 #processed data to be saved:
-processed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
-pik_filename = processed_dataDir+exp + '_processed'+'.p'
+preprocessed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
+pik_filename = preprocessed_dataDir+exp + '_preprocessed'+'.p'
 ###############################################################################
 
 # experiment info
 
-time_each_trial = [60,30,60,30,180,60,
-                      30,60,30,180,60,
-                      30,60,30,180,60,
-                      30,60,30,180,60,
-                      30,60,30,180,60,
-                      30,60,30,180,60]
+time_each_trial = [60,30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60]
 
 type_each_trial = ['dark','static','dark','static','moving','dark',
                           'static','dark','static','moving','dark',
@@ -164,9 +167,6 @@ for i in range(len(all_start_times_m)):
 all_start_times, all_end_times = ma_process.get_start_n_end_times_m (all_start_times_m_e, all_end_times_m_e, reg_t)
 all_start_frames, all_end_frames = ma_process.get_start_n_end_frames_m (all_start_times_m_e, all_end_times_m_e, reg_t)
 
-# for i in range(len(all_start_times)):
-#     print(all_start_times[i])
-    #print(all__times[i])
 ###############################################################################
 ###############################################################################
 # ledpanels data topic analysis
@@ -198,4 +198,4 @@ all_processed_rawdata["datapaths"] = datapaths
 pickle.dump((all_processed_rawdata), open(pik_filename, "wb" ) )
 
 
-print(str(exp)+' processed data saved to pickel')
+print(str(exp)+' pre processed data saved to pickel')

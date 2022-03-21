@@ -32,11 +32,3 @@ def filter_angles_savgol(angles_deg_uw):
     filtered_angles_wr_deg = np.rad2deg(filtered_angles_wr_rad)
 
     return filtered_angles_wr_deg
-
-# def overfilter_ang_vel(ang_vel):
-#     #Savitzky–Golay filter
-#     window = (17*3)+1
-#     polyorder = 1
-#     overfiltered_angvel = sig.savgol_filter(ang_vel , window, polyorder, 0)
-#
-#     return overfiltered_angvel
