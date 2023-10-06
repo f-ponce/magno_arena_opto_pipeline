@@ -5,19 +5,21 @@ import random
 import matplotlib.pyplot as plt
 from collections import Counter
 import copy
+from scipy.interpolate import interp1d
 
 import basic_analysis_functions.MA_basic_analysis_functions as ma_analysis
 import plot_functions.MA_plot_functions_basic_analysis as ma_plot
 import plot_functions.MA_plot_functions_MA_081621 as ma_exp_plot
+import plot_functions.plot_magno_funcs as ma_exp_plot2
 import import_functions.MA_filter_functions as ma_filter
 import basic_analysis_functions.MA_sac_ID_ivo as ma_sacc
 import basic_analysis_functions.MA_run_sac_ID_ivo as ma_runsacc
 ###############################################################################
 
-exp_s = 3
+exp_s = 100
 
-exp = 'MA_081621_'+str(exp_s)+'s'
-#exp = 'MA_032122_'+str(exp_s)+'s'
+#exp = 'MA_081621_'+str(exp_s)+'s'
+exp = 'MA_032122_'+str(exp_s)+'s'
 
 filename = exp+'_preprocessed.p'
 
@@ -147,7 +149,7 @@ for i in range(len(all_nosaccs_velos)):
 ###############################################################################
 #plot single trial, single fly
 
-for i in [5]:#range(len(datapaths)):
+for i in [0]:#range(len(datapaths)):
 
     v = all_velos[i]
     v1 = all_nosaccs_velos_2[i]
@@ -235,12 +237,36 @@ test_trials_ci_95s = []
 for i in range(len(test_trials_list)):
     test_trials = test_trials_list[i]
 
-    mm_sd, ci_95_sd = ma_analysis.get_test_trial_median_ma081621(all_nosaccs_velos, test_trials, exp_start_frames, exp_end_frames)
-    test_trials_ci_95s.append(ci_95_sd)
-    test_trials_mmeans.append(mm_sd)
-print(datapaths)
-ma_exp_plot.plot_all_ma081621_test_trials_sd(all_nosaccs_velos, reg_t, test_trials_list, exp_start_frames, exp_end_frames, all_pattern_velos,
-                                             datapaths, test_trials_mmeans, test_trials_ci_95s, 0, i)
+    mm_sd, ci_95_sd = ma_analysis.get_test_trial_median_ma081621_2(all_nosaccs_velos, test_trials, exp_start_frames, exp_end_frames)
+    actual_time = np.linspace(0, (120+30+exp_s), (120+30+exp_s)*30)
+
+    if len(mm_sd)>=len(actual_time):
+        mm_sdd = mm_sd[0:len(actual_time)]
+        ci_95_sdd0 = ci_95_sd[0][0:len(actual_time)]
+        ci_95_sdd1 = ci_95_sd[1][0:len(actual_time)]
+    else:
+        mm_sdd = mm_sd
+        ci_95_sdd0 = ci_95_sd[0]
+        ci_95_sdd1 = ci_95_sd[1]
+
+    f_a = interp1d(actual_time[0:len(mm_sdd)], mm_sdd, bounds_error=False)
+    reg_a = f_a(actual_time)
+    f_aci0 = interp1d(actual_time[0:len(mm_sdd)], ci_95_sdd0, bounds_error=False)
+    reg_aci0 = f_aci0(actual_time)
+    f_aci1 = interp1d(actual_time[0:len(mm_sdd)], ci_95_sdd1, bounds_error=False)
+    reg_aci1 = f_aci1(actual_time)
+    test_trials_mmeans.append(reg_a)
+    test_trials_ci_95s.append([reg_aci0,reg_aci1])
+
+
+ma_exp_plot2.plot_medang_dur_sd(test_trials_mmeans, test_trials_ci_95s, exp_s)
+#ma_exp_plot2.plot_medang_dur_sd_control(test_trials_mmeans, test_trials_ci_95s, exp_s)
+
+
+# ma_exp_plot.plot_all_ma081621_test_trials_sd(all_nosaccs_velos, reg_t, test_trials_list, exp_start_frames, exp_end_frames, all_pattern_velos,
+#                                              datapaths, test_trials_mmeans, test_trials_ci_95s, 0, i)
+
+
 
 # #normalized test_trials plot_decay_traces
 # test_n_trials_mmeans = []

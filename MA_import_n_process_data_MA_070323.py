@@ -12,32 +12,36 @@ from fnmatch import fnmatch
 import pickle
 
 #data directory info
+exp_s = 3
 
-exp = 'MA_022622_100s'
+exp = 'MA_070323_'+str(exp_s)+'s'
+print(exp)
+strain = 's203xkir' #'control'#'s113xkir'
+#dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_081621/data_'+str(exp_s)+'s_2'
+dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_070323/data'+'_'+strain #data_s113xkir'
 
-dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_022622/test'
 pattern_ma_data = "*.hdf5"
 
 #processed data to be saved:
-processed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
-pik_filename = processed_dataDir+exp + '_processed'+'.p'
+preprocessed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data_2023/'
+pik_filename = preprocessed_dataDir+exp + '_preprocessed.p'
 ###############################################################################
 
 # experiment info
 
-time_each_trial = [60,30,60,60,10,60,
-                      30,60,60,10,60,
-                      30,60,60,10,60,
-                      30,60,60,10,60,
-                      30,60,60,10,60,
-                      30,60,60,10,60]
+time_each_trial = [60,30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60,
+                      30,60,30,exp_s,60]
 
-type_each_trial = ['dark','static','dark','moving','static','dark',
-                          'static','dark','moving','static','dark',
-                          'static','dark','moving','static','dark',
-                          'static','dark','moving','static','dark',
-                          'static','dark','moving','static','dark',
-                          'static','dark','moving','static','dark',]
+type_each_trial = ['dark','static','dark','static','moving','dark',
+                          'static','dark','static','moving','dark',
+                          'static','dark','static','moving','dark',
+                          'static','dark','static','moving','dark',
+                          'static','dark','static','moving','dark',
+                          'static','dark','static','moving','dark',]
 
 expected_fps = 30
 
@@ -56,6 +60,7 @@ for path, subdirs, files in os.walk(dataDir):
             datapaths.append(os.path.join(path, name))
 
 print(str(len(datapaths))+' files')
+
 ###############################################################################
 number_trials = len(time_each_trial)
 experiment_time = np.sum(np.asarray(time_each_trial))
@@ -77,11 +82,8 @@ all_ledpanels_command = all_rostopics_rawdata['all_ledpanels_command']
 all_ledpanels_1 = all_rostopics_rawdata['all_ledpanels_1']
 
 ###############################################################################
-# for i in range(len(all_ros_ts)):
-#     print(datapaths[i],len(all_ros_ts[i]))
 ###############################################################################
 # MA arena data topic analysis
-
 # get start and end times/frames of each trial in all the different nodes that publish at different rates
 
 # create list of lists with start and end trial times
@@ -107,7 +109,6 @@ print(str(len(all_start_frames_m[0]))+' start times/frames')
 ###############################################################################
 ###############################################################################
 # magnotether angle data topic analysis
-
 # use the start/end times to get the magnotether angles from the start to end of experiment
 
 all_magnotether_tstamps_exp = ma_process.get_start_end_exp_data(all_magnotether_tstamps,
@@ -165,9 +166,6 @@ for i in range(len(all_start_times_m)):
 all_start_times, all_end_times = ma_process.get_start_n_end_times_m (all_start_times_m_e, all_end_times_m_e, reg_t)
 all_start_frames, all_end_frames = ma_process.get_start_n_end_frames_m (all_start_times_m_e, all_end_times_m_e, reg_t)
 
-# for i in range(len(all_start_times)):
-#     print(all_start_times[i])
-    #print(all__times[i])
 ###############################################################################
 ###############################################################################
 # ledpanels data topic analysis
@@ -199,4 +197,4 @@ all_processed_rawdata["datapaths"] = datapaths
 pickle.dump((all_processed_rawdata), open(pik_filename, "wb" ) )
 
 
-print(str(exp)+' processed data saved to pickel')
+print(str(exp)+' pre processed data saved to pickel')

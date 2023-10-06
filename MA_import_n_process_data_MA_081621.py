@@ -12,18 +12,20 @@ from fnmatch import fnmatch
 import pickle
 
 #data directory info
-exp_s = 10
+exp_s = 100
 
-exp = 'MA_081621_'+str(exp_s)+'s'
+exp = 'MA_032122_'+str(exp_s)+'s'
+#exp = 'MA_081621_'+str(exp_s)+'s'
 print(exp)
 
-dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_081621/data_'+str(exp_s)+'s_2'
+#dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_081621/data_'+str(exp_s)+'s_2'
+dataDir = '/Users/fponce/Documents/magno_arena_opto/MA_032122/data_'+str(exp_s)+'s'
 
 pattern_ma_data = "*.hdf5"
 
 #processed data to be saved:
 preprocessed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
-pik_filename = preprocessed_dataDir+exp + '_preprocessed'+'.p'
+pik_filename = preprocessed_dataDir+exp + '_preprocessed.p'
 ###############################################################################
 
 # experiment info
@@ -83,7 +85,6 @@ all_ledpanels_1 = all_rostopics_rawdata['all_ledpanels_1']
 ###############################################################################
 ###############################################################################
 # MA arena data topic analysis
-
 # get start and end times/frames of each trial in all the different nodes that publish at different rates
 
 # create list of lists with start and end trial times
@@ -109,7 +110,6 @@ print(str(len(all_start_frames_m[0]))+' start times/frames')
 ###############################################################################
 ###############################################################################
 # magnotether angle data topic analysis
-
 # use the start/end times to get the magnotether angles from the start to end of experiment
 
 all_magnotether_tstamps_exp = ma_process.get_start_end_exp_data(all_magnotether_tstamps,

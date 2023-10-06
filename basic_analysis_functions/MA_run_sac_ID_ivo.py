@@ -134,3 +134,44 @@ def get_all_interp_after_saccs(all_nosaccs_velos, reg_t):
         all_nosaccs_velos_interp.append(reg_a)
 
     return all_nosaccs_velos_interp
+
+def sacHist_per_trial(reg_t, test_trials, start_frames, end_frames, saccs_l_idx, saccs_r_idx):
+    trial_sl_n = []
+    trial_sr_n = []
+    for i in range(len(test_trials)):
+
+        trial = test_trials[i]
+
+        #get start/end frames of trials to plot
+        s = start_frames[trial - 2]
+        e = end_frames[trial + 1]
+
+        s_bt = start_frames[trial - 1]
+        e_bt = end_frames[trial - 1]
+
+        s_t = start_frames[trial]
+        e_t = end_frames[trial]
+
+        s_at = start_frames[trial + 1]
+        e_at = end_frames[trial + 1]
+
+        #get the velo and time trace
+        saccs_l = saccs_l_idx[s:e]
+        saccs_r = saccs_r_idx[s:e]
+        t = reg_t[s:e] - reg_t[s]
+
+        sl = np.abs((t)[~np.isnan(saccs_l)])
+        sr = np.abs((t)[~np.isnan(saccs_r)])
+
+        nbins = np.int(len(saccs_l)/40)
+        sl_n, sl_bins = np.histogram(sl, nbins, density=False)
+        sr_n, sr_bins = np.histogram(sr, nbins, density=False)
+
+        binW = sl_bins[2] - sl_bins[1]
+        hlfBinWidth = binW/2.
+        sacBins = sl_bins[:-1]+hlfBinWidth
+
+        trial_sl_n.append(sl_n)
+        trial_sr_n.append(sr_n)
+
+    return trial_sl_n, trial_sr_n, sacBins, binW

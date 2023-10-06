@@ -16,12 +16,12 @@ import basic_analysis_functions.MA_run_sac_ID_ivo as ma_runsacc
 
 exp_s = 3
 
-exp = 'MA_081621_'+str(exp_s)+'s'
+exp = 'MA_070323_'+str(exp_s)+'s'
 #exp = 'MA_032122_'+str(exp_s)+'s'
 
 filename = exp+'_preprocessed.p'
 
-dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data/'
+dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_data_2023/'
 pickelDir = dataDir+filename
 
 pickle_file = open(pickelDir, "rb")
@@ -33,10 +33,10 @@ trials_rand = 1
 fps = 30
 # for key, value in all_processed_rawdata.items():
 #     print (key)
-plot_raw_data = 0
+plot_raw_data = 1
 #processed data to be saved:
 save_data = 0
-processed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_processed_data/'
+processed_dataDir = '/Users/fponce/Documents/magno_arena_opto/analysis_MA_2022/pickled_processed_data_2023/'
 pik_filename = processed_dataDir+exp + '_processed.p'
 
 ###############################################################################
@@ -147,18 +147,18 @@ for i in range(len(all_nosaccs_velos)):
 ###############################################################################
 #plot single trial, single fly
 
-for i in [5]:#range(len(datapaths)):
-
-    v = all_velos[i]
-    v1 = all_nosaccs_velos_2[i]
-    ov = all_overfilt_velos[i]
-    test_trials = all_static_bias_trials[i]
-    start_frames = all_start_frames[i]
-    end_frames = all_end_frames[i]
-    pattern_velos = all_pattern_velos[i]
-    datapath = datapaths[i]
-    sl = all_saccs_l_idx[i]
-    sr = all_saccs_r_idx[i]
+# for i in [0]:#range(len(datapaths)):
+#
+#     v = all_velos[i]
+#     v1 = all_nosaccs_velos_2[i]
+#     ov = all_overfilt_velos[i]
+#     test_trials = all_static_bias_trials[i]
+#     start_frames = all_start_frames[i]
+#     end_frames = all_end_frames[i]
+#     pattern_velos = all_pattern_velos[i]
+#     datapath = datapaths[i]
+#     sl = all_saccs_l_idx[i]
+#     sr = all_saccs_r_idx[i]
 
     # trial_sl_n, trial_sr_n, sacBins, binW = ma_runsacc.sacHist_per_trial(reg_t, test_trials, start_frames, end_frames, sl, sr)
     #
@@ -238,7 +238,7 @@ for i in range(len(test_trials_list)):
     mm_sd, ci_95_sd = ma_analysis.get_test_trial_median_ma081621(all_nosaccs_velos, test_trials, exp_start_frames, exp_end_frames)
     test_trials_ci_95s.append(ci_95_sd)
     test_trials_mmeans.append(mm_sd)
-print(datapaths)
+
 ma_exp_plot.plot_all_ma081621_test_trials_sd(all_nosaccs_velos, reg_t, test_trials_list, exp_start_frames, exp_end_frames, all_pattern_velos,
                                              datapaths, test_trials_mmeans, test_trials_ci_95s, 0, i)
 
@@ -275,8 +275,8 @@ mm_p, ci_95_p = ma_analysis.get_test_trial_median_ma081621(all_nosaccs_velos_abs
 # ma_exp_plot.plot_all_ma081621_test_trials(all_nosaccs_velos_absv, reg_t, test_trials_list_p, exp_start_frames, exp_end_frames, all_pattern_velos,
 #                                            datapaths, mm_p, 0, i)
 #
-# #plot median, 95 ci
-# ma_exp_plot.plot_all_ma081621_test_trials_sd(all_nosaccs_velos_absv, reg_t, [test_trials_list_p], exp_start_frames, exp_end_frames, all_pattern_velos,
+#plot median, 95 ci
+# ma_exp_plot.plot_all_ma081621s_test_trials_sd(all_nosaccs_velos_absv, reg_t, [test_trials_list_p], exp_start_frames, exp_end_frames, all_pattern_velos,
 #                                              datapaths, [mm_p], [ci_95_p], 0, i)
 
 ###############################################################################

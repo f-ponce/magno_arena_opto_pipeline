@@ -36,6 +36,7 @@ def color_trial_background(trial_start_times, trial_end_times, type_trials):
         plt.axvspan(s, e, facecolor=bc, alpha=bc_a)
 
 def plot_exp_angvelo(reg_t, angvelo, trial_start_times, trial_end_times, gains, g_t_av_f, type_trials, title):
+
     sns.set_style("ticks")
 
     fig, axs = plt.subplots(figsize=(14,7), facecolor='w', edgecolor='k')
@@ -49,9 +50,11 @@ def plot_exp_angvelo(reg_t, angvelo, trial_start_times, trial_end_times, gains, 
 
     #horizontal x=0 line
     #axs.axhline(y=0.0, color='gray', linestyle='-', linewidth= 0.9)
+    axs.axhline(y=500.0, color='gray', linestyle='-', linewidth= 0.9)
+    axs.axhline(y=-500.0, color='gray', linestyle='-', linewidth= 0.9)
 
     #plot limits
-    plt.ylim([-500, 500])
+    plt.ylim([-650, 650])
     plt.xlim([0, reg_t[-1]])
 
     #plot label
